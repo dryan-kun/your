@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Untuk Kamu ❤️</title>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Comic Sans MS', cursive;
+  background: linear-gradient(135deg, #ff9ecf, #ffc1e3);
+  overflow: hidden;
+  text-align: center;
+  color: white;
+}
+
+.slide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: fadeIn 1s ease;
+  width: 90%;
+  max-width: 400px;
+  min-height: 220px;
+}
+
+h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 12px 25px;
+  margin: 10px;
+  border: none;
+  border-radius: 25px;
+  background: white;
+  color: #ff4fa3;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.1);
+  background: #ffe6f2;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translate(-50%, -40%);}
+  to {opacity: 1; transform: translate(-50%, -50%);}
+}
+
+.heart {
+  position: fixed;
+  top: -10px;
+  animation: fall linear forwards;
+  color: pink;
+}
+
+@keyframes fall {
+  to { transform: translateY(110vh); opacity: 0; }
+}
+
+.bear {
+  position: fixed;
+  bottom: 0;
+  right: 15px;
+  width: 200px;
+  max-width: 45vw;
+  pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<audio id="clickSound" src="klik.mp3" preload="auto"></audio>
+<audio id="noSound" src="gbs.mp3" preload="auto"></audio>
+<audio id="yaySound" src="yay.mp3" preload="auto"></audio>
+
+<img src="bear.gif" class="bear">
+
+<div class="slide" id="slideBox">
+  <h1 id="text">Selamat datang cintakuu ❤️</h1>
+  <div id="buttons">
+    <button onclick="next()">Next</button>
+  </div>
+</div>
+
+<script>
+let step = 0;
+let responses = [];
+
+function playClick() {
+  const s = document.getElementById("clickSound");
+  s.currentTime = 0;
+  s.play();
+}
+
+function playNoSound() {
+  const s = document.getElementById("noSound");
+  s.currentTime = 0;
+  s.play();
+}
+
+function playYaySound() {
+  const s = document.getElementById("yaySound");
+  s.currentTime = 0;
+  s.play();
+}
+
+document.addEventListener("click", function(e) {
+  if (e.target.tagName === "BUTTON") {
+    playClick();
+  }
+});
+
+function next(answerText = null) {
+  if (answerText) responses.push(answerText);
+  step++;
+
+  const text = document.getElementById("text");
+  const buttons = document.getElementById("buttons");
+
+  if (step === 1) {
+    text.innerHTML = "Aku minta maaf yaa";
+    buttons.innerHTML = `
+      <button onclick="next('Maaf: Iyaa')">Iyaa</button>
+      <button onclick="next('Maaf: Engga')">Engga</button>`;
+  }
+  else if (step === 2) {
+    text.innerHTML = "Aku sayang sama kamu, kamu sayang aku ngga?";
+    buttons.innerHTML = `
+      <button onclick="next('Sayang: Iya')">Iya</button>
+      <button onclick="next('Sayang: Engga')">Engga</button>`;
+  }
+  else if (step === 3) {
+    text.innerHTML = "Aku sangat cinta sama kamu, kamu cinta aku ngga?";
+    buttons.innerHTML = `
+      <button onclick="next('Cinta: Aku cinta')">Aku cinta</button>
+      <button onclick="next('Cinta: G')">G</button>`;
+  }
+  else if (step === 4) {
+    text.innerHTML = "Mau cintai aku sekali lagi?";
+    buttons.innerHTML = `
+      <button onclick="next('Cintai lagi: Mau')">Mau</button>
+      <button id="noBtn1">Tidak</button>`;
+    activateRunawayButton("noBtn1", "Cintai lagi: Tidak");
+  }
+  else if (step === 5) {
+    text.innerHTML = "Kamu masih mau sama aku?";
+    buttons.innerHTML = `
+      <button onclick="next('Masih mau: Mau')">Mau</button>
+      <button id="noBtn2">Engga</button>`;
+    activateRunawayButton("noBtn2", "Masih mau: Engga");
+  }
+  else if (step === 6) {
+    text.innerHTML = "Udah yakin dengan semua itu?";
+    buttons.innerHTML = `
+      <button onclick="playYaySound(); next('Yakin: Iya banget')">Iyaa aku sangat yakin sayangg</button>`;
+  }
+  else {
+    text.innerHTML = "Terimakasih telah menjawab ❤️";
+    buttons.innerHTML = "";
+    sendEmail();
+  }
+}
+
+function activateRunawayButton(id, responseText) {
+  const btn = document.getElementById(id);
+  const box = document.getElementById("slideBox");
+
+  btn.style.position = "absolute";
+
+  btn.addEventListener("click", () => {
+    playNoSound();
+    responses.push(responseText);
+
+    const maxX = box.clientWidth - btn.offsetWidth - 10;
+    const maxY = box.clientHeight - btn.offsetHeight - 10;
+
+    const randomX = Math.random() * maxX;
+    const randomY = Math.random() * maxY;
+
+    btn.style.left = randomX + "px";
+    btn.style.top = randomY + "px";
+  });
+}
+
+function sendEmail() {
+  emailjs.init("62lI_6oEr5dhQw33V");
+  emailjs.send("service_utzn7ua", "template_p4wklzb", {
+    message: responses.join("\n")
+  });
+}
+
+setInterval(() => {
+  const heart = document.createElement("div");
+  heart.className = "heart";
+  heart.innerHTML = "💗";
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.fontSize = (Math.random() * 20 + 15) + "px";
+  heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 6000);
+}, 500);
+</script>
+
+</body>
+</html>
