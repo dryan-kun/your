@@ -29,24 +29,20 @@ body {
 
 h1 {
   font-size: 1.8em;
-  margin-bottom: 25px;
-}
-
-.button-area {
-  position: relative;
-  height: 120px;
+  margin-bottom: 20px;
 }
 
 button {
   padding: 12px 25px;
+  margin: 10px;
   border: none;
   border-radius: 25px;
   background: white;
   color: #ff4fa3;
   font-size: 16px;
   cursor: pointer;
-  position: absolute;
   transition: 0.3s;
+  position: relative;
 }
 
 button:hover {
@@ -83,108 +79,99 @@ button:hover {
 
 <body>
 
-<div class="slide">
+<div class="slide" id="slide">
   <h1 id="text">Selamat datang cintakuu ❤️</h1>
-  <div id="buttons" class="button-area"></div>
+  <div id="buttons">
+    <button onclick="playClick(); next()">Next</button>
+  </div>
 </div>
 
-<audio id="klik" src="klik.mp3"></audio>
-<audio id="gbs" src="gbs.mp3"></audio>
-<audio id="yay" src="yay.mp3"></audio>
+<!-- SOUND -->
+<audio id="clickSound" src="klik.mp3"></audio>
+<audio id="noSound" src="gbs.mp3"></audio>
+<audio id="yaySound" src="yay.mp3"></audio>
 
 <script>
+emailjs.init("62lI_6oEr5dhQw33V");
+
 let step = 0;
 let responses = [];
 
-function play(id){
-  document.getElementById(id).currentTime = 0;
-  document.getElementById(id).play();
-}
-
-function moveButton(btn){
-  play("gbs");
-  const area = btn.parentElement;
-  const maxX = area.clientWidth - btn.offsetWidth;
-  const maxY = area.clientHeight - btn.offsetHeight;
-
-  const x = Math.random() * maxX;
-  const y = Math.random() * maxY;
-
-  btn.style.left = x + "px";
-  btn.style.top = y + "px";
-}
+function playClick(){ document.getElementById("clickSound").play(); }
+function playNo(){ document.getElementById("noSound").play(); }
+function playYay(){ document.getElementById("yaySound").play(); }
 
 function next(answerText = null) {
-  if(answerText) responses.push(answerText);
+  if (answerText) responses.push(answerText);
   step++;
 
   const text = document.getElementById("text");
   const buttons = document.getElementById("buttons");
 
-  buttons.innerHTML = "";
-
   if (step === 1) {
     text.innerHTML = "Aku minta maaf yaa";
     buttons.innerHTML = `
-      <button style="left:20px;top:30px" onclick="play('klik');next('Maaf: Iyaa')">Iyaa</button>
-      <button style="right:20px;top:30px" onclick="play('klik');next('Maaf: Engga')">Engga</button>`;
+      <button onclick="playClick(); next('Maaf: Iyaa')">Iyaa</button>
+      <button onclick="playClick(); next('Maaf: Engga')">Engga</button>`;
   }
   else if (step === 2) {
     text.innerHTML = "Aku sayang sama kamu, kamu sayang aku ngga?";
     buttons.innerHTML = `
-      <button style="left:20px;top:30px" onclick="play('klik');next('Sayang: Iya')">Iya</button>
-      <button style="right:20px;top:30px" onclick="play('klik');next('Sayang: Engga')">Engga</button>`;
+      <button onclick="playClick(); next('Sayang: Iya')">Iya</button>
+      <button onclick="playClick(); next('Sayang: Engga')">Engga</button>`;
   }
   else if (step === 3) {
     text.innerHTML = "Aku sangat cinta sama kamu, kamu cinta aku ngga?";
     buttons.innerHTML = `
-      <button style="left:20px;top:30px" onclick="play('klik');next('Cinta: Aku cinta')">Aku cinta</button>
-      <button style="right:20px;top:30px" onclick="play('klik');next('Cinta: G')">G</button>`;
+      <button onclick="playClick(); next('Cinta: Aku cinta')">Aku cinta</button>
+      <button onclick="playClick(); next('Cinta: G')">G</button>`;
   }
   else if (step === 4) {
     text.innerHTML = "Mau cintai aku sekali lagi?";
     buttons.innerHTML = `
-      <button style="left:20px;top:50px" onclick="play('klik');next('Cintai lagi: Mau')">Mau</button>
-      <button id="kabur1" style="left:200px;top:50px">Tidak</button>`;
-    document.getElementById("kabur1").onclick = function(){ moveButton(this); };
+      <button onclick="playClick(); next('Cintai lagi: Mau')">Mau</button>
+      <button id="runBtn1" onclick="runAway(this, event)">Tidak</button>`;
   }
   else if (step === 5) {
     text.innerHTML = "Kamu masih mau sama aku?";
     buttons.innerHTML = `
-      <button style="left:20px;top:50px" onclick="play('klik');next('Masih mau: Mau')">Mau</button>
-      <button id="kabur2" style="left:200px;top:50px">Engga</button>`;
-    document.getElementById("kabur2").onclick = function(){ moveButton(this); };
+      <button onclick="playClick(); next('Masih mau: Mau')">Mau</button>
+      <button id="runBtn2" onclick="runAway(this, event)">Engga</button>`;
   }
   else if (step === 6) {
     text.innerHTML = "Udah yakin dengan semua itu?";
     buttons.innerHTML = `
-      <button style="left:50%;top:50px;transform:translateX(-50%)"
-      onclick="play('yay');next('Yakin: Iya banget')">
-      Iyaa aku sangat yakin sayangg
-      </button>`;
+      <button onclick="playYay(); next('Yakin: Iya banget')">Iyaa aku sangat yakin sayangg</button>`;
   }
   else {
     text.innerHTML = "Terimakasih telah menjawab ❤️";
     buttons.innerHTML = "";
-    showBear();
     sendEmail();
   }
 }
 
+function runAway(btn, e){
+  e.preventDefault();
+  playNo();
+
+  const slide = document.getElementById("slide");
+  const rect = slide.getBoundingClientRect();
+
+  const maxX = rect.width - btn.offsetWidth - 20;
+  const maxY = rect.height - btn.offsetHeight - 20;
+
+  btn.style.position = "absolute";
+  btn.style.left = Math.random() * maxX + "px";
+  btn.style.top = Math.random() * maxY + "px";
+}
+
 function sendEmail() {
-  emailjs.init("62lI_6oEr5dhQw33V");
   emailjs.send("service_utzn7ua", "template_p4wklzb", {
     message: responses.join("\n")
   });
 }
 
-function showBear() {
-  const bear = document.createElement("img");
-  bear.src = "bear.gif";
-  bear.className = "bear";
-  document.body.appendChild(bear);
-}
-
+// Hujan hati
 setInterval(() => {
   const heart = document.createElement("div");
   heart.className = "heart";
@@ -195,9 +182,9 @@ setInterval(() => {
   document.body.appendChild(heart);
   setTimeout(() => heart.remove(), 6000);
 }, 500);
-
-next();
 </script>
+
+<img src="bear.gif" class="bear">
 
 </body>
 </html>
